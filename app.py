@@ -35,4 +35,5 @@ def get_data():
     return jsonify(speed=speed, fuel=fuel, gps=gps_location)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Chạy Flask trên Vercel, cổng 8080 và host '0.0.0.0'
+    app.run(debug=False, host='0.0.0.0', port=8080)
