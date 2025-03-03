@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADAS Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Thêm Leaflet.js từ CDN -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
@@ -70,72 +69,60 @@
         let carMarker;
         let currentWaypoint = 0;
 
-        // Giới hạn tuyến đường đi qua các điểm gần nhau trong Hà Đông
         const waypoints = [
-            [20.9841, 105.8069], // Vị trí ban đầu
+            [20.9841, 105.8069], 
             [20.9855, 105.8080],
             [20.9865, 105.8095],
             [20.9875, 105.8110],
             [20.9885, 105.8125]
         ];
 
-        // Khởi tạo bản đồ với Leaflet
-        const map = L.map('map').setView(waypoints[0], 15); // Vị trí ban đầu (latitude, longitude)
+        const map = L.map('map').setView(waypoints[0], 15); 
 
-        // Thêm tile layer vào bản đồ
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Giới hạn khu vực bản đồ chỉ trong khu vực Hà Đông
         map.setMaxBounds([
-            [20.9600, 105.7700],  // Góc dưới trái
-            [21.0300, 105.8600]   // Góc trên phải
+            [20.9600, 105.7700], 
+            [21.0300, 105.8600]   
         ]);
 
-        // Tạo biểu tượng xe với kích thước đẹp hơn
         carIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/ios/452/car.png',  // Biểu tượng xe ô tô
-            iconSize: [40, 40],  // Kích thước icon
-            iconAnchor: [20, 20],  // Vị trí gắn lên bản đồ
-            popupAnchor: [0, -20]  // Vị trí cửa sổ popup
+            iconUrl: 'https://img.icons8.com/ios/452/car.png',  
+            iconSize: [40, 40],
+            iconAnchor: [20, 20], 
+            popupAnchor: [0, -20] 
         });
 
-        // Thêm biểu tượng xe vào bản đồ
         carMarker = L.marker(waypoints[0], { icon: carIcon }).addTo(map);
 
-        // Hàm lấy dữ liệu từ Flask API
         function fetchData() {
             fetch('/get_data')
                 .then(response => response.json())
                 .then(data => {
-                    // Cập nhật thông tin tốc độ, xăng, GPS
                     document.getElementById('speed').textContent = data.speed;
                     document.getElementById('fuel').textContent = data.fuel.toFixed(3);  // Hiển thị xăng với 3 chữ số thập phân
                     document.getElementById('gps').textContent = `Lat: ${data.gps.lat.toFixed(4)}, Lon: ${data.gps.lon.toFixed(4)}`;
 
-                    // Cập nhật vị trí xe trên bản đồ
                     carMarker.setLatLng([data.gps.lat, data.gps.lon]);
                 });
         }
 
-        // Hàm di chuyển xe qua các waypoint
         function moveCar() {
             if (currentWaypoint >= waypoints.length) {
-                currentWaypoint = 0; // Nếu đã đi hết tuyến đường, quay lại điểm đầu tiên
+                currentWaypoint = 0; 
             }
             const nextWaypoint = waypoints[currentWaypoint];
-            carMarker.setLatLng(nextWaypoint); // Di chuyển xe đến waypoint mới
+            carMarker.setLatLng(nextWaypoint); 
 
-            currentWaypoint++; // Chuyển sang waypoint tiếp theo
+            currentWaypoint++; 
         }
 
-        // Di chuyển xe mỗi 2 giây
         setInterval(moveCar, 2000);
 
-        // Tải dữ liệu và di chuyển xe mỗi 2 giây
         setInterval(fetchData, 2000);
-        fetchData();  // Lấy dữ liệu lần đầu khi trang tải xong
+        fetchData(); 
     </script>
 </body>
 </html>
