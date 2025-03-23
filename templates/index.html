@@ -1,128 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADAS Simulation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <style>
-        #map { height: 500px; width: 100%; }
-        #video-container { margin-top: 40px; }
-        video { width: 100%; height: 100%; }
-        .info-card { 
-            background-color: white; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            padding: 20px;
-            transition: transform 0.2s ease-in-out;
-        }
-        .info-card:hover {
-            transform: translateY(-10px);
-        }
-        .info-card h2 { font-size: 1.25rem; color: #333; }
-        .info-card .value { font-size: 1.5rem; color: #007BFF; }
-        .bg-gradient {
-            background: linear-gradient(to right, #4e73df, #1cc88a);
-        }
-    </style>
+    <title>Camera Hành Trình Thông Minh</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body class="bg-gradient text-white">
-
-    <div class="container mx-auto p-6">
-        <h1 class="text-4xl text-center font-bold text-white mb-6">ADAS Simulation</h1>
-        
-        <!-- Phần Bản đồ -->
-        <div id="map" class="rounded-xl shadow-lg mb-6"></div>
-
-        <!-- Thông tin -->
-        <div id="info" class="space-y-6 mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="info-card">
-                <h2 class="font-semibold">Speed (km/h)</h2>
-                <div id="speed" class="value">Loading...</div>
+<body class="dark-mode">
+    <div class="container">
+        <!-- Taskbar -->
+        <nav class="taskbar">
+            <div class="taskbar-item active" data-section="adas">
+                <i class="fas fa-car-crash"></i>
+                <span>ADAS</span>
             </div>
-            <div class="info-card">
-                <h2 class="font-semibold">Fuel (%)</h2>
-                <div id="fuel" class="value">Loading...</div>
+            <div class="taskbar-item" data-section="dashcam">
+                <i class="fas fa-video"></i>
+                <span>Dash Cam</span>
             </div>
-            <div class="info-card">
-                <h2 class="font-semibold">GPS Location</h2>
-                <div id="gps" class="value">Loading...</div>
+            <div class="taskbar-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </nav>
+<!-- ADAS Section -->
+    <section id="adas" class="content-section active">
+        <header>
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            <h1>Hệ Thống Hỗ Trợ Lái Xe ADAS</h1>
+            <div class="toggle-container">
+                <label class="switch">
+                    <input type="checkbox" id="toggle-dark-mode">
+                    <span class="slider round">
+                        <span class="knob"></span>
+                    </span>
+                </label>
+                <span style="margin-left: 10px;">Chế độ tối</span>
+            </div>
+        </header>
+        <div class="data-grid">
+            <div class="data-row">
+                <div class="data-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tốc độ:</span>
+                    <span id="speed"></span>
+                </div>
+                <div class="data-item">
+                    <i class="fas fa-oil-can"></i>
+                    <span>Nhiệt độ:</span>
+                    <span id="coolant_temp"></span>
+                </div>
+            </div>
+            <div class="data-row">
+                <div class="data-item">
+                    <i class="fas fa-fan"></i>
+                    <span>Vòng tua máy:</span>
+                    <span id="rpm"></span>
+                </div>
+                <div class="data-item">
+                    <i class="fas fa-gas-pump"></i>
+                    <span>Nhiên liệu:</span>
+                    <span id="fuel_level"></span>
+                </div>
+            </div>
+            <div class="data-row">
+                <div class="data-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Mã lỗi:</span>
+                    <span id="dtc">
+                    {% if obd_data and obd_data.dtc %}
+                            {{ obd_data.dtc }}
+                    {% else %}
+                        Không có mã lỗi
+                    {% endif %}
+                </span>
+                </div>
+                <div class="data-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Vị trí:</span>
+                    <span id="location"></span>
+                </div>
             </div>
         </div>
-
-        <!-- Phần Video -->
-        <div id="video-container" class="mt-8 bg-white p-4 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-semibold text-center mb-4 text-gray-900">Video Detection Output</h2>
-            <div class="rounded-lg overflow-hidden shadow-xl">
-                <video controls>
-                    <source src="{{ url_for('static', filename='videos/detect.mp4') }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+        <div id="alert-section">
+            <h2>Cảnh báo</h2>
+            <ul class="alert-list">
+            </ul>
         </div>
-    </div>
+    </section>
 
-    <script>
-        let carIcon;
-        let carMarker;
-        let currentWaypoint = 0;
+    <!-- Dash Cam Section -->
+    <section id="dashcam" class="content-section">
+        <h2>Camera Hành Trình</h2>
+        <video id="camera-stream" width="640" height="480" autoplay muted></video>
+        <img id="camera-frame" src="" alt="Camera Feed">
+    </section>
 
-        const waypoints = [
-            [20.9841, 105.8069], 
-            [20.9855, 105.8080],
-            [20.9865, 105.8095],
-            [20.9875, 105.8110],
-            [20.9885, 105.8125]
-        ];
+    <!-- Settings Section -->
+    <section id="settings" class="content-section">
+        <h2>Cài Đặt</h2>
+        <p>Chức năng này đang được phát triển.</p>
+    </section>
+</div>
 
-        const map = L.map('map').setView(waypoints[0], 15); 
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        map.setMaxBounds([
-            [20.9600, 105.7700], 
-            [21.0300, 105.8600]   
-        ]);
-
-        carIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/ios/452/car.png',  
-            iconSize: [40, 40],
-            iconAnchor: [20, 20], 
-            popupAnchor: [0, -20] 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Taskbar navigation
+        $('.taskbar-item').click(function() {
+            $('.taskbar-item').removeClass('active');
+            $(this).addClass('active');
+            $('.content-section').removeClass('active');
+            $('#' + $(this).data('section')).addClass('active');
         });
 
-        carMarker = L.marker(waypoints[0], { icon: carIcon }).addTo(map);
-
-        function fetchData() {
-            fetch('/get_data')
+        // AJAX update data
+        function updateData() {
+            fetch('/data')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('speed').textContent = data.speed;
-                    document.getElementById('fuel').textContent = data.fuel.toFixed(3);  // Hiển thị xăng với 3 chữ số thập phân
-                    document.getElementById('gps').textContent = `Lat: ${data.gps.lat.toFixed(4)}, Lon: ${data.gps.lon.toFixed(4)}`;
+                    // Cập nhật thông tin OBD-II
+                    if (data.obd) {
+                        document.getElementById('speed').textContent = data.obd.speed;
+                        document.getElementById('rpm').textContent = data.obd.rpm;
+                        document.getElementById('coolant_temp').textContent = data.obd.coolant_temp;
+                        document.getElementById('fuel_level').textContent = data.obd.fuel_level;
+                         //Xử lý DTC
+                        if (data.obd.dtc) {
+                            document.getElementById('dtc').textContent = data.obd.dtc;
+                        } else {
+                            document.getElementById('dtc').textContent = "Không có mã lỗi";
+                        }
+                    }
 
-                    carMarker.setLatLng([data.gps.lat, data.gps.lon]);
-                });
+                    // Cập nhật cảnh báo
+                    const alertSection = document.getElementById('alert-section');
+                    alertSection.innerHTML = '<h2>Cảnh báo</h2><ul class="alert-list">'; // Reset
+                    if (data.alert && data.alert.length > 0) {
+                        data.alert.forEach(alert => {
+                            alertSection.querySelector('ul').innerHTML += `<li class="alert-item">${alert}</li>`;
+                        });
+                    } else {
+                        alertSection.innerHTML += '<p>Không có cảnh báo.</p>';
+                    }
+                     document.getElementById('location').textContent = `${data.latitude}, ${data.longitude}`;
+                })
+                .catch(error => console.error('Lỗi:', error));
         }
 
-        function moveCar() {
-            if (currentWaypoint >= waypoints.length) {
-                currentWaypoint = 0; 
+        // Hàm lấy dữ liệu từ camera
+        const video = document.getElementById('camera-stream');
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const context = canvas.getContext('2d');
+        const cameraFrame = document.getElementById('camera-frame');
+        let stream = null;
+
+        // Hàm lấy dữ liệu từ camera
+        async function getCameraStream() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Lỗi truy cập camera:", err);
             }
-            const nextWaypoint = waypoints[currentWaypoint];
-            carMarker.setLatLng(nextWaypoint); 
-
-            currentWaypoint++; 
         }
 
-        setInterval(moveCar, 2000);
+        // Hàm gửi frame lên server
+        function sendFrame() {
+            context.drawImage(video, 0, 0, 640, 480);
+            const frameDataUrl = canvas.toDataURL('image/jpeg');
+            const frameData = frameDataUrl.split(',')[1]; // Lấy phần base64
 
-        setInterval(fetchData, 2000);
-        fetchData(); 
-    </script>
+            fetch('/process_frame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ frame: frameData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+            });
+        }
+
+        // Hàm cập nhật camera feed
+        function updateCameraFeed() {
+            fetch('/camera_feed')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.frame) {
+                        document.getElementById('camera-frame').src = `data:image/jpeg;base64,${data.frame}`;
+                    } else {
+                        console.log(data.error);
+                    }
+    
+                    // Hiển thị cảnh báo
+                    const alertSection = document.getElementById('alert-section');
+                    alertSection.innerHTML = '<h2>Cảnh báo</h2><ul class="alert-list">'; // Reset
+                    if (data.alerts && data.alerts.length > 0) {
+                        data.alerts.forEach(alert => {
+                            alertSection.querySelector('ul').innerHTML += `<li class="alert-item">${alert}</li>`;
+                        });
+                    } else {
+                        alertSection.innerHTML += '<p>Không có cảnh báo.</p>';
+                    }
+                })
+                .catch(error => console.error('Lỗi:', error));
+        }
+        // Dark/Light Mode Toggle
+        $('#toggle-dark-mode').on('change', function() {
+            $('body').toggleClass('light-mode');
+        });
+
+        // Bắt đầu luồng camera khi trang web được tải
+        video.addEventListener('loadedmetadata', () => {
+            // Gửi frame mỗi 100ms (có thể điều chỉnh)
+            setInterval(sendFrame, 100);
+            setInterval(updateCameraFeed, 100);
+        });
+
+        getCameraStream();
+        // Cập nhật dữ liệu và camera feed mỗi giây
+        setInterval(updateData, 1000);
+        //setInterval(updateCameraFeed, 100);
+    });
+</script>
 </body>
 </html>

@@ -1,7 +1,392 @@
-body {
-    font-family: Arial, sans-serif;
+/* General Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-h1 {
-    color: #4CAF50;
+/* CSS Variables */
+:root {
+  --bg-color: #1e293b;
+  --text-color: #cbd5e1;
+  --accent-color: #64B5F6;
+  --secondary-color: #90A4AE;
+  --card-bg-color: #37474F;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  /* Giảm shadow */
+  --transition-speed: 0.3s;
+  --border-radius: 8px;
+  /* Giảm bo tròn */
+  --font-main: 'Roboto', sans-serif;
+  --alert-bg-color: #f8d7da;
+  --alert-text-color: #721c24;
+}
+
+/* Light Mode Theme */
+body.light-mode {
+  --bg-color: #f4f4f4;
+  --text-color: #333;
+  --accent-color: #007bff;
+  --secondary-color: #6c757d;
+  --card-bg-color: #fff;
+  --box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --alert-bg-color: #f8d7da;
+  --alert-text-color: #721c24;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+  overflow-x: hidden;
+  /* Ngăn cuộn ngang */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 15px auto;
+  /* Giảm margin */
+  padding: 15px;
+  /* Giảm padding */
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Taskbar Styles */
+.taskbar {
+  display: flex;
+  justify-content: space-around;
+  background-color: rgba(0, 0, 0, 0.2);
+  /* Translucent Taskbar */
+  color: var(--text-color);
+  padding: 8px 0;
+  /* Giảm padding */
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(5px);
+  /* Giảm blur */
+}
+
+.taskbar-item {
+  text-align: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  /* Giảm padding */
+  border-radius: 8px;
+  transition: background-color var(--transition-speed), transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9em;
+  /* Giảm kích thước font */
+}
+
+.taskbar-item:hover,
+.taskbar-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.02); /* Giảm hiệu ứng scale */
+}
+
+.taskbar-item i {
+  font-size: 1.1em;
+  /* Giảm kích thước icon */
+  margin-bottom: 5px;
+  /* Giảm margin bottom */
+  color: var(--accent-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  /* Thêm bóng cho icon */
+}
+
+/* Header Styles */
+#adas header {
+  position: relative;
+  /* Cần thiết để định vị tuyệt đối */
+  text-align: center;
+  padding: 20px 0;
+  /* Giảm padding */
+  border-bottom: 1px solid var(--secondary-color);
+}
+
+#adas h1 {
+  margin-top: 20px;
+  font-size: 1.6em;
+  /* Giảm kích thước h1 */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  /* Giảm khoảng cách chữ */
+}
+
+.logo {
+  max-width: 120px;
+  /* Giảm kích thước logo */
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+  /* Giảm margin */
+}
+
+/* Content Sections */
+.content-section {
+  padding: 20px;
+  /* Giảm padding */
+  display: none;
+}
+
+.content-section.active {
+  display: block;
+}
+
+/* Data Grid Styles */
+.data-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Giảm khoảng cách */
+  margin-top: 20px;
+  /* Giảm margin top */
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  /* Giảm khoảng cách */
+}
+
+.data-item {
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Translucent Data Items */
+  padding: 12px;
+  /* Giảm padding */
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: background-color var(--transition-speed), transform 0.2s;
+  text-align: center;
+  flex: 1;
+  backdrop-filter: blur(3px);
+  /* Giảm blur */
+  min-height: 80px;
+  /* Giảm chiều cao tối thiểu */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.85em; /* Giảm kích thước font */
+}
+
+.data-item:hover {
+  transform: translateY(-3px); /* Giảm hiệu ứng nổi */
+}
+
+.data-item i {
+  margin-right: 5px;
+  /* Giảm margin */
+  color: var(--accent-color);
+  font-size: 1em;
+  /* Giảm kích thước icon */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  /* Thêm bóng cho icon */
+}
+
+.data-item span:first-of-type {
+  font-weight: bold;
+  color: var(--secondary-color);
+  display: block;
+  margin-bottom: 5px;
+  /* Giảm margin bottom */
+  font-size: 0.9em; /* Giảm kích thước font */
+  text-transform: uppercase;
+  /* Chữ in hoa */
+  letter-spacing: 0.3px;
+  /* Giảm khoảng cách chữ */
+}
+
+.data-item span:last-of-type {
+  font-size: 1em;
+  /* Giảm kích thước font */
+  color: var(--text-color);
+  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.2);
+  /* Thêm bóng cho chữ */
+}
+
+/* Alert Section Styles */
+#alert-section {
+    margin-top: 40px;
+    padding: 25px;
+    border: 1px solid #e0b4b4;
+    border-radius: var(--border-radius);
+    background-color: var(--alert-bg-color);
+    color: var(--alert-text-color);
+    box-shadow: var(--box-shadow);
+    /* Thêm bóng */
+}
+
+.alert-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.alert-item {
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    background-color: rgba(242, 222, 222, 0.5);
+    /* Translucent Background */
+    border-radius: 8px;
+}
+
+/* Dash Cam Styles */
+#dashcam {
+    text-align: center;
+}
+
+#camera-frame {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: box-shadow var(--transition-speed);
+}
+
+/* Settings Styles */
+#settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider - style it like the background of the checkbox */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--secondary-color);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--card-bg-color);
+  -webkit-transition: .4s;
+  transition: .4s;
+  box-shadow: var(--box-shadow);
+}
+
+input:checked + .slider {
+  background-color: var(--accent-color);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--accent-color);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 0;
+        /* Loại bỏ margin để hiển thị toàn màn hình */
+        padding: 8px;
+        /* Giảm padding */
+        border-radius: 0;
+        /* Loại bỏ border-radius */
+        box-shadow: none;
+        /* Loại bỏ box-shadow */
+    }
+
+    /* Taskbar Styles */
+    .taskbar {
+        flex-direction: row;
+        /* Trở lại hàng ngang */
+        justify-content: space-around;
+        position: fixed;
+        /* Cố định taskbar */
+        bottom: 0;
+        /* Đặt taskbar xuống dưới */
+        top: auto;
+        left: 0;
+        width: 100%;
+        border-radius: 0;
+        /* Loại bỏ border-radius */
+        padding: 4px 0;
+        /* Giảm padding */
+    }
+
+    .taskbar-item {
+        flex-basis: 0;
+        /* Chia đều không gian */
+        flex-grow: 1;
+        padding: 4px;
+        /* Giảm padding */
+        font-size: 0.8em;
+        /* Giảm kích thước font */
+    }
+
+    .taskbar-item i {
+        font-size: 1em;
+        /* Giảm kích thước icon */
+        margin-bottom: 3px;
+        /* Giảm margin bottom */
+    }
+    /* Dark/Light Mode Toggle */
+    .toggle-container {
+        justify-content: flex-end; /* Căn phải nút toggle */
+        margin-top: 0; /* Loại bỏ margin trên */
+        margin-left: auto; /* Để nó tự động căn phải */
+        order: 1; /* Đảm bảo nó ở cuối */
+        position: static;
+    }
+
+    /* Dark/Light Mode Toggle */
+    .toggle-container {
+        justify-content: center; /* Căn giữa nút toggle */
+        margin-top: 15px; /* Thêm margin trên */
+        order: 1;
+        position:relative
+    }
 }

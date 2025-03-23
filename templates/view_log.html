@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xem Log</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Nội dung File Log</h1>
+        <pre>{{ log_content }}</pre>  <!-- Hiển thị nội dung file -->
+        <a href="{{ url_for('index') }}">Quay lại</a>
+    </div>
+</body>
+</html>
